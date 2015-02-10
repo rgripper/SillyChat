@@ -1,0 +1,66 @@
+﻿@section HeadScripts {
+    <script type="text/javascript" data-main="@Url.Content("~/Scripts/typings/SillyChat/init.js")" src="~/scripts/require.js"></script>
+}
+@section Scripts {
+    <script src="/Scripts/jquery.signalR-2.2.0.js"></script>
+    <script src="/signalr/hubs"></script>
+}
+@section Styles {
+    <link href="~/Content/chat.css" rel="stylesheet" />
+}
+<div class="chat">
+    <div class="chat-stats">
+        <span class="label label-info" style="font-size: 14px;">
+            Users online:
+            <span data-bind="text: activeParticipants().length"></span>
+        </span>
+        <ul class="chat-participant-list" data-bind="foreach: activeParticipants">
+            <li>
+                <img data-bind="attr: { src: avatarUrl, title: name }" />
+            </li>
+        </ul>
+    </div>
+    <ul class="chat-list">
+        <!-- ko foreach: messages -->
+        <li class="chat-message" data-bind="
+            template: 'message-' + $root.sillyChat.MessageType[type] + '-template',
+            css: 'chat-message-' + ((author.id === $root.owner.id) ? 'yours' : 'theirs')"></li>
+        <!-- /ko -->
+        <!-- ko foreach: draftMessages-->
+        <li class="chat-message chat-message-draft chat-message-theirs" data-bind="template: 'message-text-draft-template'">
+
+        </li>
+        <!-- /ko -->
+    </ul>
+    <div class="chat-input">
+        <textarea data-bind="value: owner.draftText, pressEnter: submitMessage(), valueUpdate: 'input'"></textarea>
+    </div>
+</div>
+<img src="data:image/gif;base64,R0lGODlhEAAGAPMLAM/Pz9DQ0NLS0tPT09XV1dvb29zc3N3d3d7e3urq6uvr6wAAAAAAAAAAAAAAAAAAACH5BAUAAAsALAAAAQAQAAUAAAQn8BiD1kKz3kyUAhbggYv4AUkSWEG6Lq0aeK9J2oMgDNZRFIfe7xABADs=" />
+<script type="text/html" id="message-text-draft-template">
+    <div class="chat-message-author">
+        <img data-bind="attr: { src: author.avatarUrl, title: author.name }" />
+        @*<div class="chat-message-author-name" data-bind="text: author.name"></div>*@
+    </div>
+    <div class="balloon">
+        <span data-bind="text: text"></span>
+        <span class="loader"></span>
+    </div>
+</script>
+
+<script type="text/html" id="message-text-template">
+    <div class="chat-message-author">
+        <img data-bind="attr: { src: author.avatarUrl, title: author.name }" />
+        @*<div class="chat-message-author-name" data-bind="text: author.name"></div>*@
+    </div>
+    <div class="balloon" data-bind="text: text"></div>
+</script>
+
+<script type="text/html" id="message-image-template">
+    <div class="chat-message-author">
+        <img data-bind="attr: { src: author.avatarUrl }" />
+    </div>
+    <div class="balloon">
+        <img data-bind="attr: { src: imageUrl }" />
+    </div>
+</script>
