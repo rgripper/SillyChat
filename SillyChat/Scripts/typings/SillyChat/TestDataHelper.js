@@ -1,4 +1,4 @@
-define(["require", "exports", "ChatViewModel", "knockout"], function (require, exports, sillyChat, ko) {
+define(["require", "exports", "knockout"], function (require, exports, ko) {
     var TestDataHelper = (function () {
         function TestDataHelper() {
         }
@@ -27,11 +27,10 @@ define(["require", "exports", "ChatViewModel", "knockout"], function (require, e
                 newDate.setMinutes(newDate.getMinutes() - Math.random() * 600);
                 return {
                     conversationId: 3001,
-                    date: newDate,
+                    date: newDate.getTime().toString(),
                     id: msgCount++,
-                    type: 0 /* text */,
                     author: TestDataHelper.getRandomItem(participants),
-                    text: ko.observable("me-me-me")
+                    text: "me-me-me"
                 };
             }
             var messages = [];

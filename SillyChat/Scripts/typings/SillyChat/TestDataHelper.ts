@@ -1,4 +1,6 @@
 ﻿import sillyChat = require("ChatViewModel");
+import hubInterfaces = require("HubInterfaces");
+
 import ko = require("knockout");
 
 export class TestDataHelper {
@@ -10,7 +12,7 @@ export class TestDataHelper {
         return array[index];
     }
 
-    public static createTestMessages(count: number): sillyChat.IMessageViewModel[] {
+    public static createTestMessages(count: number): hubInterfaces.IMessage[] {
 
         var oldMessages = []
         var msgCount = 0;
@@ -27,17 +29,16 @@ export class TestDataHelper {
                 draftText: ko.observable("")
             }];
 
-        function createTestMessage(): sillyChat.IMessageViewModel {
+        function createTestMessage(): hubInterfaces.IMessage {
             var newDate = new Date();
             newDate.setMinutes(newDate.getMinutes() - Math.random() * 600);
 
             return {
                 conversationId: 3001,
-                date: newDate,
+                date: newDate.getTime().toString(),
                 id: msgCount++,
-                type: sillyChat.MessageType.text,
                 author: TestDataHelper.getRandomItem(participants),
-                text: ko.observable("me-me-me")
+                text: "me-me-me"
             };
         }
 

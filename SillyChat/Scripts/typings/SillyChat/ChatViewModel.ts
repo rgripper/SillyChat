@@ -1,64 +1,33 @@
 ﻿import ko = require('knockout');
+import hubInterfaces = require("HubInterfaces");
 
 export class ChatViewModel {
-    public activeParticipants = ko.observableArray<IParticipantViewModel>([]);
+    
+    public participants = ko.observableArray<IParticipantViewModel>([]);
 
-    public draftMessages = ko.computed<IMessageViewModel[]>(() => this.activeParticipants()
-        .filter(p => p.id !== this.owner.id && !!p.draftText().trim())
-        .map(p => <IMessageViewModel>{ author: p, text: p.draftText, type: MessageType.text }));
+    public otherWritingParticipants = ko.computed<IParticipantViewModel[]>(() =>
+        this.participants().filter(p => (!this.owner() || p.id !== this.owner().id) && !!p.draftText().trim()));
 
-    public messages = ko.observableArray<IMessageViewModel>([]);
+    public messages = ko.observableArray<hubInterfaces.IMessage>([]);
 
-    public conversationId = ko.observable<number>();
+    public orderedMessages = ko.computed<hubInterfaces.IMessage[]>(() => { var tmp = this.messages(); tmp.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); return tmp; });
 
-    constructor(public owner: IParticipantViewModel, oldMessages: IMessageViewModel[] = []) {
-        oldMessages.forEach(x => this.messages.push(x));
-    }
+    public owner = ko.observable<IParticipantViewModel>(null);
 
-    public submitMessage(): void {
-        if (!this.owner.draftText().trim()) {
-            return;
-        }
-        var newMessage = this.getCurrentMessage();
-        this.owner.draftText("");
+    public tooManyUsers = ko.observable(false);
 
-        this.messages.push(newMessage);
-        var list = <HTMLUListElement>document.getElementsByClassName("chat-list")[0];
-        list.scrollTop = list.scrollHeight;
-    }
+    public sendingMessage = ko.observable(false);
 
-    private getCurrentMessage(): IMessageViewModel {
-        return {
-            author: this.owner,
-            text: ko.observable(this.owner.draftText()),
-            type: MessageType.text
-        };
-    }
+    public isYourMessage = (x: hubInterfaces.IMessage) => this.owner() && this.owner().id === x.author.id;
+
+    public submitMessage: () => void;
 }
 
-export interface IParticipantViewModel {
-    id: number;
-    avatarUrl: string;
-    name: string;
-
+export interface IParticipantViewModel extends hubInterfaces.IUser {
     draftText: KnockoutObservable<string>;
 }
 
-export interface ConversationViewModel {
-    id: number;
-    participantsIds: number[];
-}
-
-export enum MessageType {
-    text, image
-}
-
-export interface IMessageViewModel {
-    id?: number;
-    date?: Date;
+export interface IDraftMessageViewModel {
     author: IParticipantViewModel;
-    type: MessageType;
-
-    text?: KnockoutObservable<string>;
-    imageUrl?: string;
+    text: KnockoutObservable<string>;
 }
