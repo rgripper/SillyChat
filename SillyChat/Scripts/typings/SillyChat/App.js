@@ -1,3 +1,6 @@
+/// <amd-dependecy path="signalRHubs" >
+/// <reference path="globalsettings.d.ts" />
+/// <reference path="hubinterfaces.d.ts" />
 define(["require", "exports", "knockout", "ChatViewModel"], function (require, exports, ko, sillyChat) {
     require([], function () {
         ko.bindingHandlers["pressEnter"] = {
@@ -22,7 +25,6 @@ define(["require", "exports", "knockout", "ChatViewModel"], function (require, e
         };
         var createParticipantFromUser = function (user) {
             var participant = user;
-            console.log(user);
             participant.draftText = ko.observable("");
             return participant;
         };
@@ -31,7 +33,10 @@ define(["require", "exports", "knockout", "ChatViewModel"], function (require, e
             chatViewModel.messages.push(message);
         };
         chatHubProxy.client.addParticipant = function (user) {
-            chatViewModel.participants.push(createParticipantFromUser(user));
+            var containsUser = chatViewModel.participants().some(function (x) { return x.id === user.id; });
+            if (!containsUser) {
+                chatViewModel.participants.push(createParticipantFromUser(user));
+            }
         };
         chatHubProxy.client.init = function (owner, users, messages) {
             chatViewModel.tooManyUsers(false);
@@ -47,34 +52,47 @@ define(["require", "exports", "knockout", "ChatViewModel"], function (require, e
         chatHubProxy.client.setTooManyUsers = function () {
             chatViewModel.owner(null);
         };
-        $.connection.hub.reconnected(function () { return app.connected(true); });
-        $.connection.hub.disconnected(function () { return app.connected(false); });
+        chatHubProxy.client.setDraftText = function (userId, text) {
+            var participant = chatViewModel.participants().filter(function (p) { return p.id === userId; })[0];
+            if (participant) {
+                participant.draftText(text);
+            }
+        };
+        chatViewModel.owner.subscribe(function (owner) {
+            if (owner) {
+                owner.draftText.subscribe(function (x) { return chatHubProxy.server.setDraftText(x); });
+            }
+        });
         var app = {
+            settings: window.sillyChatSettings,
             connected: ko.observable(false),
             chat: chatViewModel,
             controls: {
+                isSigningIn: ko.observable(false),
                 userName: ko.observable(""),
                 signIn: function () {
-                    $.post("/Home/SignIn", { name: app.controls.userName() }).done(function (x) {
+                    $.post(app.settings.signInPath, { name: app.controls.userName() }).done(function (x) {
                         if (x.success) {
-                            $.connection.hub.start().done(function () { return app.connected(true); });
+                            app.controls.connect().always(function () { return app.controls.isSigningIn(false); });
                         }
-                    });
+                        else {
+                            app.controls.isSigningIn(false);
+                        }
+                    }).fail(function (x) { return app.controls.isSigningIn(false); });
                 },
+                connect: function () { return $.connection.hub.start().done(function () { return app.connected(true); }); },
                 signOut: function () {
                     $.connection.hub.stop();
-                    $.post("/Home/SignOut");
+                    $.post(app.settings.signOutPath);
                     chatViewModel.owner(null);
                 }
             }
         };
-        //$.connection.hub.start().done(function () {
-        //    // Wire up Send button to call NewContosoChatMessage on the server.
-        //    $('#newContosoChatMessage').click(function () {
-        //        contosoChatHubProxy.server.newContosoChatMessage($('#displayname').val(), $('#message').val());
-        //        $('#message').val('').focus();
-        //    });
-        //});
+        $.connection.hub.reconnected(function () { return app.connected(true); });
+        $.connection.hub.disconnected(function () { return app.connected(false); });
+        if (app.settings.isAuthenticated) {
+            app.controls.connect();
+        }
         ko.applyBindings(app);
     });
 });

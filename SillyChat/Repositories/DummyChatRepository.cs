@@ -15,6 +15,11 @@ namespace SillyChat.Repositories
 
         public User AddUser(string userName)
         {
+            if (String.IsNullOrEmpty(userName))
+            {
+                throw new ArgumentException("userName");
+            }
+
             var user = GetUser(userName);
             if (user != null)
             {
@@ -52,9 +57,9 @@ namespace SillyChat.Repositories
             return message;
         }
 
-        public IEnumerable<Message> GetMessages()
+        public IEnumerable<Message> GetLastMessages(int count)
         {
-            return Messages.ToList();
+            return Messages.OrderByDescending(x => x.Date).Take(count).ToList();
         }
     }
 }

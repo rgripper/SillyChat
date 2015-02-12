@@ -38,6 +38,6 @@ C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\System.Web.WebPages.
 C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\System.Web.WebPages.Deployment.xml
 C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\System.Web.WebPages.Razor.xml
 C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\System.Web.Optimization.xml
-C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\obj\Debug\SillyChat.csprojResolveAssemblyReference.cache
 C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\obj\Debug\SillyChat.dll
 C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\obj\Debug\SillyChat.pdb
+C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\obj\Debug\SillyChat.csprojResolveAssemblyReference.cache

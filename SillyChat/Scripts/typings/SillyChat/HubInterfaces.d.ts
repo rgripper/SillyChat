@@ -1,10 +1,10 @@
-﻿export interface IUser {
+﻿interface IUser {
     id: number;
     avatarUrl: string;
     name: string;
 }
 
-export interface IMessage {
+interface IMessage {
     id: number;
 
     author: IUser;
@@ -14,7 +14,7 @@ export interface IMessage {
     date: string;
 }
 
-export interface IChatClient {
+interface IChatClient {
     init(owner: IUser, users: IUser[], messages: IMessage[]): void;
 
     setTooManyUsers(): void;
@@ -24,13 +24,17 @@ export interface IChatClient {
     removeParticipant(userId: number): void;
 
     addMessage(message: IMessage): void;
+
+    setDraftText(userId: number, text: string): void;
 }
 
-export interface IChatServer {
+interface IChatServer {
     addMessage(text: string): void;
+    
+    setDraftText(text: string): void;
 }
 
-export interface ChatHubProxy {
+interface ChatHubProxy {
     client: IChatClient;
     server: IChatServer;
 }

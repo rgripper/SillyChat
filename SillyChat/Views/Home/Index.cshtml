@@ -1,26 +1,49 @@
-﻿@section HeadScripts {
+﻿@using Newtonsoft.Json
+
+@section HeadScripts {
     <script type="text/javascript" data-main="@Url.Content("~/Scripts/typings/SillyChat/init.js")" src="~/scripts/require.js"></script>
+    <script>
+        sillyChatSettings = {
+            isAuthenticated: @(JsonConvert.SerializeObject(User.Identity.IsAuthenticated)),
+            signInPath: "/Home/SignIn",
+            signOutPath: "/Home/SignOut",
+        };
+    </script>
 }
 @section Styles {
     <link href="~/Content/chat.css" rel="stylesheet" />
+    <style>
+        .controls > * {
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .controls .control-label {
+            vertical-align: baseline;
+        }
+        .controls .label {
+            vertical-align: middle;
+        }
+    </style>
 }
 
 <div data-bind="visible: true" style="display: none;">
-    <div>
-        <span class="label label-success" data-bind="visible: connected()">connected</span>
-        <span class="label label-danger" data-bind="visible: !connected()">disconnected</span>
+    <div data-bind="visible: controls.isSigningIn()" style="text-align: center; height: 100%">
+        <img style="vertical-align: middle;" src="~/Images/ajax-loader.gif" />
     </div>
-    <div>
-        <div class="form-inline controls" data-bind="with: controls">
-            <div data-bind="visible: !$root.chat.owner()" class="form-group">
-                User name: <input class="form-control" data-bind="value: userName" />
-                <button type="button" class="btn btn-primary" data-bind="click: signIn">Sign In</button>
-            </div>
-            <div data-bind="visible: !!$root.chat.owner()" class="form-group">
-                <button type="button" class="btn btn-primary" data-bind="click: signOut">Sign Out</button>
-            </div>
+    <div data-bind="visible: !controls.isSigningIn()">
+        <div class="form-inline controls" data-bind="visible: !connected()">
+            <span class="label label-danger" data-bind="visible: !connected()">disconnected</span>
+            <label class="control-label">User name:</label>
+            <input class="form-control" data-bind="pressEnter: controls.signIn(), value: controls.userName, valueUpdate: 'input'" />
+            <button type="button" class="btn btn-primary" data-bind="click: controls.signIn">Sign In</button>
         </div>
-        <div class="chat" data-bind="visible: !!chat.owner(), with: chat">
+        <div class="form-inline controls" data-bind="visible: connected()">
+            <span class="label label-success">connected</span>
+            <label class="control-label">Hello, <span data-bind="text: chat.owner() ? chat.owner().name : ''"></span>!</label>
+            <button type="button" class="btn btn-primary" data-bind="click: controls.signOut">Sign Out</button>
+        </div>
+        <div class="chat" data-bind="visible: connected(), with: chat">
             <div class="chat-stats">
                 <span class="label label-info" style="font-size: 14px;">
                     Users online:
@@ -52,7 +75,6 @@
 <script type="text/html" id="message-draft-template">
     <div class="chat-message-author">
         <img data-bind="attr: { src: avatarUrl, title: name }" />
-        @*<div class="chat-message-author-name" data-bind="text: author.name"></div>*@
     </div>
     <div class="balloon">
         <span data-bind="text: draftText"></span>
@@ -61,11 +83,15 @@
 </script>
 
 <script type="text/html" id="message-template">
-    <div class="chat-message-author">
-        <img data-bind="attr: { src: author.avatarUrl, title: author.name }" />
-        @*<div class="chat-message-author-name" data-bind="text: author.name"></div>*@
+    <div style="display: inline-block; width: 86%">
+        <div class="chat-message-author" data-bind="css: { left: !$root.chat.hasParticipant(author) }">
+            <img data-bind="attr: { src: author.avatarUrl, title: author.name }" />
+        </div>
+        <div class="balloon">
+            <span data-bind="text: text"></span>
+        </div>
     </div>
-    <div class="balloon">
-        <span data-bind="text: text"></span>
+    <div class="chat-message-date" style="display: inline-block; width: 13%;">
+        <span data-bind="text: new Date(date).toLocaleTimeString()"></span>
     </div>
 </script>

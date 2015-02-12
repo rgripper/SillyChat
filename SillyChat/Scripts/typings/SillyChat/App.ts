@@ -1,8 +1,10 @@
 ﻿/// <amd-dependecy path="signalRHubs" >
+/// <reference path="globalsettings.d.ts" />
+/// <reference path="hubinterfaces.d.ts" />
+
 import ko = require("knockout");
 import sillyChat = require("ChatViewModel");
 import testData = require("TestDataHelper");
-import hubInterfaces = require("HubInterfaces");
 
 require([],() => {
 
@@ -18,7 +20,7 @@ require([],() => {
     };
 
     var chatViewModel = new sillyChat.ChatViewModel();
-    
+
     chatViewModel.submitMessage = () => {
         var text = chatViewModel.owner().draftText();
         if (text.trim()) {
@@ -29,21 +31,23 @@ require([],() => {
         }
     };
 
-    var createParticipantFromUser = (user: hubInterfaces.IUser) => {
+    var createParticipantFromUser = (user: IUser) => {
         var participant = <sillyChat.IParticipantViewModel>user;
-        console.log(user);
         participant.draftText = ko.observable("");
         return participant;
     };
 
-    var chatHubProxy = <hubInterfaces.ChatHubProxy>$.connection["chatHub"];
-    chatHubProxy.client.addMessage = function (message: hubInterfaces.IMessage) {
+    var chatHubProxy = <ChatHubProxy>$.connection["chatHub"];
+    chatHubProxy.client.addMessage = function (message: IMessage) {
         chatViewModel.messages.push(message);
     };
-    chatHubProxy.client.addParticipant = function (user: hubInterfaces.IUser) {
-        chatViewModel.participants.push(createParticipantFromUser(user));
+    chatHubProxy.client.addParticipant = function (user: IUser) {
+        var containsUser = chatViewModel.participants().some(x => x.id === user.id);
+        if (!containsUser) {
+            chatViewModel.participants.push(createParticipantFromUser(user));
+        }
     };
-    chatHubProxy.client.init = function (owner: hubInterfaces.IUser, users: hubInterfaces.IUser[], messages: hubInterfaces.IMessage[]) {
+    chatHubProxy.client.init = function (owner: IUser, users: IUser[], messages: IMessage[]) {
         chatViewModel.tooManyUsers(false);
         chatViewModel.owner(createParticipantFromUser(owner));
         chatViewModel.messages.removeAll();
@@ -57,40 +61,54 @@ require([],() => {
     chatHubProxy.client.setTooManyUsers = function () {
         chatViewModel.owner(null);
     };
-    
-    $.connection.hub.reconnected(() => app.connected(true));
-    $.connection.hub.disconnected(() => app.connected(false));
+    chatHubProxy.client.setDraftText = function (userId: number, text: string) {
+        var participant = chatViewModel.participants().filter(p => p.id === userId)[0];
+        if (participant) {
+            participant.draftText(text);
+        }
+    };
+
+    chatViewModel.owner.subscribe(owner => {
+        if (owner) {
+            owner.draftText.subscribe(x => chatHubProxy.server.setDraftText(x));
+        }
+    });
 
     var app = {
+        settings: window.sillyChatSettings,
         connected: ko.observable(false),
         chat: chatViewModel,
         controls: {
+            isSigningIn: ko.observable(false),
             userName: ko.observable(""),
             signIn: function () {
-                $.post("/Home/SignIn", { name: app.controls.userName() }).done((x: { success: boolean }) => {
+                $.post(app.settings.signInPath, { name: app.controls.userName() })
+                    .done((x: { success: boolean }) => {
                     if (x.success) {
-                        $.connection.hub.start().done(() => app.connected(true));
-                        //chatHubProxy.server.join(app.controls.userName());
+                        app.controls.connect().always(() => app.controls.isSigningIn(false));
                     }
-                });
+                    else {
+                        app.controls.isSigningIn(false);
+                    }
+                })
+                    .fail(x => app.controls.isSigningIn(false));
             },
+            connect: () => $.connection.hub.start().done(() => app.connected(true)),
             signOut: function () {
                 $.connection.hub.stop();
-                $.post("/Home/SignOut");
+                $.post(app.settings.signOutPath);
                 chatViewModel.owner(null);
             }
         }
     };
 
-    
-    
-//$.connection.hub.start().done(function () {
-//    // Wire up Send button to call NewContosoChatMessage on the server.
-//    $('#newContosoChatMessage').click(function () {
-//        contosoChatHubProxy.server.newContosoChatMessage($('#displayname').val(), $('#message').val());
-//        $('#message').val('').focus();
-//    });
-//});
+    $.connection.hub.reconnected(() => app.connected(true));
+    $.connection.hub.disconnected(() => app.connected(false));
+
+    if (app.settings.isAuthenticated) {
+        app.controls.connect();
+    }
 
     ko.applyBindings(app);
+
 });

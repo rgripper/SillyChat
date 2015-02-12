@@ -1,4 +1,5 @@
-﻿using SillyChat.Repositories;
+﻿using Newtonsoft.Json;
+using SillyChat.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,13 @@ namespace SillyChat.Controllers
         private readonly IChatRepository _ChatRepo = new DummyChatRepository();
 
         public ActionResult Index()
+        {
+            ViewBag.Title = "Home Page";
+
+            return View();
+        }
+
+        public ActionResult Moo()
         {
             ViewBag.Title = "Home Page";
 

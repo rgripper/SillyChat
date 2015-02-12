@@ -21,18 +21,22 @@ namespace SillyChat.Models
         void RemoveParticipant(int userId);
 
         void AddMessage(Message message);
+
+        void SetDraftText(int userId, string text);
     }
 
     public interface IChatServer
     {
         void AddMessage(string text);
+
+        void SetDraftText(string text);
     }
 
     public class ChatHub : Hub<IChatClient>, IChatServer
     {
         private readonly IChatRepository _ChatRepo = new DummyChatRepository();
 
-        private readonly ChatState _ChatState = new ChatState();
+        private static readonly ChatState ChatState = new ChatState();
 
         private User CurrentUser
         {
@@ -49,6 +53,12 @@ namespace SillyChat.Models
             Clients.All.AddMessage(message);
         }
 
+        [Authorize]
+        public void SetDraftText(string text)
+        {
+            Clients.Others.SetDraftText(this.CurrentUser.Id, text);
+        }
+
         public override Task OnDisconnected(bool stopCalled)
         {
             if (this.Context.User.Identity.IsAuthenticated)
@@ -56,7 +66,7 @@ namespace SillyChat.Models
                 var user = this.CurrentUser;
                 if (user != null) // not orphaned
                 {
-                    _ChatState.Leave(user);
+                    ChatState.Leave(user);
                     Clients.Others.RemoveParticipant(user.Id);
                 }
             }
@@ -78,7 +88,7 @@ namespace SillyChat.Models
 
         private void Join(User user)
         {
-            if (_ChatState.TryJoin(user))
+            if (ChatState.TryJoin(user))
             {
                 Clients.Others.AddParticipant(user);
                 Initialize(user);
@@ -91,8 +101,8 @@ namespace SillyChat.Models
 
         private void Initialize(User user)
         {
-            var messages = _ChatRepo.GetMessages();
-            Clients.Caller.Init(user, _ChatState.Participants, messages);
+            var messages = _ChatRepo.GetLastMessages(15);
+            Clients.Caller.Init(user, ChatState.Participants, messages);
         }
     }
 
@@ -100,9 +110,9 @@ namespace SillyChat.Models
     {
         private readonly int _MaxUserCount = 20;
 
-        private static Dictionary<int, User> _Participants = new Dictionary<int, User>();
+        private Dictionary<int, User> _Participants = new Dictionary<int, User>();
 
-        private static readonly object Locker = new object();
+        private readonly object Locker = new object();
 
         public IEnumerable<User> Participants
         {

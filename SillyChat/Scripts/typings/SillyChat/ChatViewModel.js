@@ -14,6 +14,7 @@ define(["require", "exports", 'knockout'], function (require, exports, ko) {
             this.tooManyUsers = ko.observable(false);
             this.sendingMessage = ko.observable(false);
             this.isYourMessage = function (x) { return _this.owner() && _this.owner().id === x.author.id; };
+            this.hasParticipant = function (x) { return _this.participants().some(function (p) { return p.id === x.id; }); };
         }
         return ChatViewModel;
     })();

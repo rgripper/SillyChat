@@ -14,6 +14,6 @@ namespace SillyChat.Repositories
 
         Message AddMessage(User user, string text);
 
-        IEnumerable<Message> GetMessages();
+        IEnumerable<Message> GetLastMessages(int count);
     }
 }

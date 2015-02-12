@@ -1,5 +1,5 @@
-﻿import sillyChat = require("ChatViewModel");
-import hubInterfaces = require("HubInterfaces");
+﻿/// <reference path="hubinterfaces.d.ts" />
+import sillyChat = require("ChatViewModel");
 
 import ko = require("knockout");
 
@@ -12,7 +12,7 @@ export class TestDataHelper {
         return array[index];
     }
 
-    public static createTestMessages(count: number): hubInterfaces.IMessage[] {
+    public static createTestMessages(count: number): IMessage[] {
 
         var oldMessages = []
         var msgCount = 0;
@@ -29,7 +29,7 @@ export class TestDataHelper {
                 draftText: ko.observable("")
             }];
 
-        function createTestMessage(): hubInterfaces.IMessage {
+        function createTestMessage(): IMessage {
             var newDate = new Date();
             newDate.setMinutes(newDate.getMinutes() - Math.random() * 600);
 

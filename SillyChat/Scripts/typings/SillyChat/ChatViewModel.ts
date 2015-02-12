@@ -1,5 +1,5 @@
-﻿import ko = require('knockout');
-import hubInterfaces = require("HubInterfaces");
+﻿/// <reference path="hubinterfaces.d.ts" />
+import ko = require('knockout');
 
 export class ChatViewModel {
     
@@ -8,9 +8,9 @@ export class ChatViewModel {
     public otherWritingParticipants = ko.computed<IParticipantViewModel[]>(() =>
         this.participants().filter(p => (!this.owner() || p.id !== this.owner().id) && !!p.draftText().trim()));
 
-    public messages = ko.observableArray<hubInterfaces.IMessage>([]);
+    public messages = ko.observableArray<IMessage>([]);
 
-    public orderedMessages = ko.computed<hubInterfaces.IMessage[]>(() => { var tmp = this.messages(); tmp.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); return tmp; });
+    public orderedMessages = ko.computed<IMessage[]>(() => { var tmp = this.messages(); tmp.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); return tmp; });
 
     public owner = ko.observable<IParticipantViewModel>(null);
 
@@ -18,12 +18,14 @@ export class ChatViewModel {
 
     public sendingMessage = ko.observable(false);
 
-    public isYourMessage = (x: hubInterfaces.IMessage) => this.owner() && this.owner().id === x.author.id;
+    public isYourMessage = (x: IMessage) => this.owner() && this.owner().id === x.author.id;
+
+    public hasParticipant = (x: IUser) => this.participants().some(p => p.id === x.id);
 
     public submitMessage: () => void;
 }
 
-export interface IParticipantViewModel extends hubInterfaces.IUser {
+export interface IParticipantViewModel extends IUser {
     draftText: KnockoutObservable<string>;
 }
 
