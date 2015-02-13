@@ -21,7 +21,6 @@
     border-radius: 10px;
     padding: 10px;
     margin: 7px;
-    width: 70%;
     vertical-align: middle;
     position: relative;
 }
@@ -47,12 +46,12 @@
 }
 
     .chat-message-yours .balloon {
-        background-color: #CFD8DC;
+        background-color: #eee;
         text-align: left;
     }
 
         .chat-message-yours .balloon:after {
-            border-color: transparent #CFD8DC;
+            border-color: transparent #eee;
             top: 10px;
             right: -10px;
             bottom: auto;
@@ -61,32 +60,32 @@
         }
 
 .chat-message-theirs {
-     text-align: left;
+    text-align: left;
 }
 
-.chat-message-theirs .balloon {
-    background-color: #DCEDC8;
-}
-
-    .chat-message-theirs .balloon:after {
-        border-color: transparent #DCEDC8;
-        top: 10px;
-        left: -10px;
-        bottom: auto;
-        border-width: 6px 10px 6px 0;
+    .chat-message-theirs .balloon {
+        background-color: #DCEDC8;
     }
 
-.chat-message-draft {
+        .chat-message-theirs .balloon:after {
+            border-color: transparent #DCEDC8;
+            top: 10px;
+            left: -10px;
+            bottom: auto;
+            border-width: 6px 10px 6px 0;
+        }
+
+.chat-message-draft .balloon {
     opacity: 0.7;
 }
 
-.chat-message-draft .loader {
-    width: 16px;
-    height: 5px;
-    display: inline-block;
-    vertical-align: middle;
-    background-image: url(data:text/plain;base64,R0lGODlhEAAFAOMAALSytNTW1NTS1PTy9Ly6vNze3LS2tNza3PT29Ly+vP///wAAAAAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJBgAKACwAAAAAEAAFAAAEIDAQY8JINI1AqwEgUITA8YUnOIYcmYqkFIfCcBobaAgRACH5BAkGAA4ALAAAAAAQAAUAg3R2dLy6vNza3KyurNTS1PTy9Hx+fLS2tLy+vNze3LSytNTW1PT29ISChP///wAAAAQuMJjWTkHnoLLyWQ0gGoliDkJgmoYIGIIymMIxD0c4lrJSr4qDYTgoqDKcQ5AQAQAh+QQJBgARACwAAAAAEAAFAIQ8OjycmpzU0tSMioz08vS0srRERkTc2ty8urxEQkTU1tSUkpT09vS0trRMSkzc3ty8vrz///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFLWDgGM7CQE2DEEraKA4gJ09hF0dzF/Fc361dD0DbKRC7hSFhGBB0hQbL1hCEAAAh+QQJBgASACwAAAAAEAAFAIQEAgR8fny8vrxsamzc3twMDgy0srTU0tT08vQUFhS8urzc2twMCgx0cnQUEhS0trTU1tT09vT///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFLWDgOEkTCc+jIFD6QAkgM4RhG8tzG44M0LvWLjar3SCKXYPBKAwQOsODZXscQgAh+QQJBgAVACwAAAAAEAAFAIQ8Ojycmpx0dnTExsSEhoTk5uRERkS0srSMjox8fnzU0tTs7uzEwsREQkSMiozs6uxMSky0trSUkpSEgoTU1tT///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFLmAAGZC0OFPiPFTkUhAgN4NgC0x07Ec817ccrycD0G44HQ9haBgIC0Jq8lDwFCEAIfkECQYAEwAsAAAAABAABQCEPDo8pKak1NLUdHZ0VFJUtLK03N7cTEpMfH58XFpcvLq85ObkREJErK6s1NbUVFZUtLa05OLkhIKE////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTOggkgStCQHkxiOAkGONMxIA9xAoDRFj8yDGi4HKfAKMpoNFygaX4hoI0IAMAgOR6EoCAEAIfkECQYAEAAsAAAAABAABQCEBAIEjIqMtLa0HB4c1NLUtLK0JCYk3NrcDA4MlJKUJCIk1NbULCos3N7cFBIUlJaU////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSngIozLwTiOsYikULzFA8xA4ML3m9B1XuQCGc0GKyxghMUAgRgkXwJCCAAh+QQJBgATACwAAAAAEAAFAIQ8OjykpqTU0tR0dnRUUlS0srTc3txMSkx8fnxcWly8urzk5uREQkSsrqzU1tRUVlS0trTk4uSEgoT///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMqCjQJCzJAeTGIqESGQhFw1gAwEy7AhEy7VbQLIb9H6QoC1XRDgKPoGBwGAQDBCEthACACH5BAkGABUALAAAAAAQAAUAhDw6PJyanHR2dMTGxISGhOTm5ERGRLSytIyOjHx+fNTS1Ozu7MTCxERCRIyKjOzq7ExKTLS2tJSSlISChNTW1P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUxIBWN1INMifMEkAFJ0SEfg2ALDATsTTzXN4ZhB+jNaDecjkeRRRQPRyIxeUgMDQMhBAAh+QQJBgASACwAAAAAEAAFAIQEAgR8fny8vrxsamzc3twMDgy0srTU0tT08vQUFhS8urzc2twMCgx0cnQUEhS0trTU1tT09vT///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFLSCkPA+ECKSABI6TNI8hG8RsLAmgM/Fcz5Dcrif7yYI6AAMyOyB6D0SDwSgMQgAh+QQJBgARACwAAAAAEAAFAIQ8OjycmpzU0tSMioz08vS0srRERkTc2ty8urxEQkTU1tSUkpT09vS0trRMSkzc3ty8vrz///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFLaCCNI1CQCREBI7hLE0hF89cHA6gJ/Fcz4rcrif7yYI6QEIxExB6DcLCkDAMQgAh+QQJBgAOACwAAAAAEAAFAIN0dnS8urzc2tysrqzU0tT08vR8fny0trS8vrzc3ty0srTU1tT09vSEgoT///8AAAAELXCFc1ZBFJXTTKNKqCTiIDRAahzKEJKuIhiGyroH3CaouigsQmGiCBQUNMMgAgA7);
-}
+    .chat-message-draft .loader {
+        width: 16px;
+        height: 5px;
+        display: inline-block;
+        vertical-align: middle;
+        background-image: url(data:text/plain;base64,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);
+    }
 
 .chat-message-yours .chat-message-author {
     display: none;
@@ -96,14 +95,14 @@
     display: inline-block;
 }
 
-.chat-message-author > img {
-    width: 20px;
-    height: 20px;
-}
+    .chat-message-author > img {
+        width: 20px;
+        height: 20px;
+    }
 
-.chat-message-author.left > img {
-    opacity: 0.5;
-}
+    .chat-message-author.left > img {
+        opacity: 0.5;
+    }
 
 .chat-message-author-name {
     font-size: 11px;
@@ -125,27 +124,78 @@
     display: inline-block;
 }
 
-.chat-participant-list > li {
-    display: inline-block;
+    .chat-participant-list img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .chat-participant-list > li {
+        display: inline-block;
+        position: relative;
+
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+
+    .chat-participant-list > li.writing::after {
+        transform: translate3d(0,0,0); 
+        content: "";
+        position: absolute;
+        z-index: -1;
+        left: 0;
+        bottom: -5px;
+        background: #2098d1;
+        height: 3px;
+        -moz-animation: writing 2s linear infinite;
+        -o-animation: writing 2s linear infinite;
+        -webkit-animation: writing 2s linear infinite;
+        animation: writing 2s linear infinite;
+    }
+
+@-moz-keyframes writing {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
 }
 
-.chat-participant-list img {
-    width: 20px;
-    height: 20px;
+@-webkit-keyframes writing {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
 }
+
+@keyframes writing {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
 
 /* other */
+
 .chat-input {
     margin-top: 20px;
 }
 
-.chat-input > textarea {
-    border: 1px solid #eee;
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-}
+    .chat-input > textarea {
+        border: 1px solid #eee;
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 100%;
+    }
 
 .chat-stats {
     margin-bottom: 10px;

@@ -32,9 +32,15 @@ interface IChatServer {
     addMessage(text: string): void;
     
     setDraftText(text: string): void;
+
+    join(): void;
 }
 
 interface ChatHubProxy {
     client: IChatClient;
     server: IChatServer;
+}
+
+interface SignalR {
+    chatHub: ChatHubProxy;
 }

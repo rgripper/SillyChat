@@ -4,7 +4,61 @@
 
 import ko = require("knockout");
 import sillyChat = require("ChatViewModel");
-import testData = require("TestDataHelper");
+
+function initChatClient(client: IChatClient, chat: sillyChat.ChatViewModel) {
+
+    var expirableObservable = function <T>(initialValue: T, timeout: number): KnockoutObservable<T> {
+        var observable = ko.observable<T>(initialValue).extend({ notify: 'always' });
+        var timeoutHandle = null;
+        observable.subscribe(x => {
+            clearTimeout(timeoutHandle);
+            if (x !== initialValue) {
+                timeoutHandle = setTimeout(() => observable(initialValue), timeout);
+            }
+        });
+        return observable;
+    };
+
+    var createParticipantFromUser = (user: IUser) => {
+        var participant = <sillyChat.IParticipantViewModel>user;
+        participant.draftText = ko.observable("");
+        participant.isWriting = expirableObservable(false, 3000);
+        return participant;
+    };
+
+    client.addMessage = function (message: IMessage) {
+        chat.messages.push(message);
+        var list = <HTMLUListElement>document.getElementsByClassName("chat-list")[0];
+        list.scrollTop = list.scrollHeight;
+    };
+    client.addParticipant = function (user: IUser) {
+        var containsUser = chat.participants().some(x => x.id === user.id);
+        if (!containsUser) {
+            chat.participants.push(createParticipantFromUser(user));
+        }
+    };
+    client.init = function (owner: IUser, users: IUser[], messages: IMessage[]) {
+        chat.tooManyUsers(false);
+        chat.owner(createParticipantFromUser(owner));
+        chat.messages.removeAll();
+        messages.forEach(x => chat.messages.push(x));
+        chat.participants.removeAll();
+        users.map(createParticipantFromUser).forEach(x => chat.participants.push(x));
+    };
+    client.removeParticipant = function (userId: number) {
+        chat.participants.remove(x => x.id === userId);
+    };
+    client.setTooManyUsers = function () {
+        chat.tooManyUsers(true);
+    };
+    client.setDraftText = function (userId: number, text: string) {
+        var participant = chat.participants().filter(p => p.id === userId)[0];
+        if (participant) {
+            participant.draftText(text);
+            participant.isWriting(true);
+        }
+    };
+}
 
 require([],() => {
 
@@ -19,56 +73,21 @@ require([],() => {
         }
     };
 
-    var chatViewModel = new sillyChat.ChatViewModel();
+    var chatHubProxy = $.connection.chatHub;
 
-    chatViewModel.submitMessage = () => {
-        var text = chatViewModel.owner().draftText();
+    var chat = new sillyChat.ChatViewModel();
+
+    chat.submitMessage = function () {
+        var text = this.owner().draftText();
         if (text.trim()) {
-            chatViewModel.sendingMessage(true);
+            this.sendingMessage(true);
             chatHubProxy.server.addMessage(text);
-            chatViewModel.sendingMessage(false); // TODO
-            chatViewModel.owner().draftText("");
+            this.sendingMessage(false); // TODO
+            this.owner().draftText("");
         }
     };
 
-    var createParticipantFromUser = (user: IUser) => {
-        var participant = <sillyChat.IParticipantViewModel>user;
-        participant.draftText = ko.observable("");
-        return participant;
-    };
-
-    var chatHubProxy = <ChatHubProxy>$.connection["chatHub"];
-    chatHubProxy.client.addMessage = function (message: IMessage) {
-        chatViewModel.messages.push(message);
-    };
-    chatHubProxy.client.addParticipant = function (user: IUser) {
-        var containsUser = chatViewModel.participants().some(x => x.id === user.id);
-        if (!containsUser) {
-            chatViewModel.participants.push(createParticipantFromUser(user));
-        }
-    };
-    chatHubProxy.client.init = function (owner: IUser, users: IUser[], messages: IMessage[]) {
-        chatViewModel.tooManyUsers(false);
-        chatViewModel.owner(createParticipantFromUser(owner));
-        chatViewModel.messages.removeAll();
-        messages.forEach(x => chatViewModel.messages.push(x));
-        chatViewModel.participants.removeAll();
-        users.map(createParticipantFromUser).forEach(x => chatViewModel.participants.push(x));
-    };
-    chatHubProxy.client.removeParticipant = function (userId: number) {
-        chatViewModel.participants.remove(x => x.id === userId);
-    };
-    chatHubProxy.client.setTooManyUsers = function () {
-        chatViewModel.owner(null);
-    };
-    chatHubProxy.client.setDraftText = function (userId: number, text: string) {
-        var participant = chatViewModel.participants().filter(p => p.id === userId)[0];
-        if (participant) {
-            participant.draftText(text);
-        }
-    };
-
-    chatViewModel.owner.subscribe(owner => {
+    chat.owner.subscribe(owner => {
         if (owner) {
             owner.draftText.subscribe(x => chatHubProxy.server.setDraftText(x));
         }
@@ -77,7 +96,7 @@ require([],() => {
     var app = {
         settings: window.sillyChatSettings,
         connected: ko.observable(false),
-        chat: chatViewModel,
+        chat: chat,
         controls: {
             isSigningIn: ko.observable(false),
             userName: ko.observable(""),
@@ -85,7 +104,7 @@ require([],() => {
                 $.post(app.settings.signInPath, { name: app.controls.userName() })
                     .done((x: { success: boolean }) => {
                     if (x.success) {
-                        app.controls.connect().always(() => app.controls.isSigningIn(false));
+                        app.controls.connectAndJoin().always(() => app.controls.isSigningIn(false));
                     }
                     else {
                         app.controls.isSigningIn(false);
@@ -93,22 +112,29 @@ require([],() => {
                 })
                     .fail(x => app.controls.isSigningIn(false));
             },
-            connect: () => $.connection.hub.start().done(() => app.connected(true)),
+            connectAndJoin: () => $.connection.hub.start().done(() => { app.chat.tooManyUsers(false); app.connected(true); chatHubProxy.server.join(); }),
             signOut: function () {
                 $.connection.hub.stop();
                 $.post(app.settings.signOutPath);
-                chatViewModel.owner(null);
+                chat.owner(null);
+                app.connected(false);
             }
         }
     };
 
-    $.connection.hub.reconnected(() => app.connected(true));
-    $.connection.hub.disconnected(() => app.connected(false));
+    app.chat.tooManyUsers.subscribe(tooMany => {
+        if (tooMany) {
+            app.controls.signOut();
+        }
+    });
+
+    initChatClient(chatHubProxy.client, chat);
 
     if (app.settings.isAuthenticated) {
-        app.controls.connect();
+        app.controls.connectAndJoin().done(x => { ko.applyBindings(app); });
     }
-
-    ko.applyBindings(app);
+    else {
+        ko.applyBindings(app);
+    }
 
 });

@@ -21,19 +21,21 @@
         .controls .control-label {
             vertical-align: baseline;
         }
+
         .controls .label {
             vertical-align: middle;
         }
     </style>
 }
 
+@Html.ActionLink("Clear database", "Clear")
 <div data-bind="visible: true" style="display: none;">
     <div data-bind="visible: controls.isSigningIn()" style="text-align: center; height: 100%">
         <img style="vertical-align: middle;" src="~/Images/ajax-loader.gif" />
     </div>
     <div data-bind="visible: !controls.isSigningIn()">
         <div class="form-inline controls" data-bind="visible: !connected()">
-            <span class="label label-danger" data-bind="visible: !connected()">disconnected</span>
+            <span class="label label-danger">disconnected</span>
             <label class="control-label">User name:</label>
             <input class="form-control" data-bind="pressEnter: controls.signIn(), value: controls.userName, valueUpdate: 'input'" />
             <button type="button" class="btn btn-primary" data-bind="click: controls.signIn">Sign In</button>
@@ -46,11 +48,13 @@
         <div class="chat" data-bind="visible: connected(), with: chat">
             <div class="chat-stats">
                 <span class="label label-info" style="font-size: 14px;">
-                    Users online:
+                    Users in chat:
                     <span data-bind="text: participants().length"></span>
+                    of 
+                    <span>@System.Configuration.ConfigurationManager.AppSettings["MaxUserCount"]</span>
                 </span>
                 <ul class="chat-participant-list" data-bind="foreach: participants">
-                    <li>
+                    <li data-bind="css: { writing: isWriting }">
                         <img data-bind="attr: { src: avatarUrl, title: name }" />
                     </li>
                 </ul>
@@ -70,6 +74,9 @@
             </div>
         </div>
     </div>
+    <div data-bind="visible: chat.tooManyUsers()" class="alert alert-info text-center">
+        Too many users
+    </div>
 </div>
 
 <script type="text/html" id="message-draft-template">
@@ -78,7 +85,6 @@
     </div>
     <div class="balloon">
         <span data-bind="text: draftText"></span>
-        <span class="loader"></span>
     </div>
 </script>
 

@@ -15,12 +15,14 @@ define(["require", "exports", "knockout"], function (require, exports, ko) {
                 id: 4402,
                 name: "Joe",
                 avatarUrl: "http://www.wikihow.com/images/c/c0/Color-Step-10-3.jpg",
-                draftText: ko.observable("")
+                draftText: ko.observable(""),
+                isWriting: ko.observable(false)
             }, {
                 id: 4403,
                 name: "Stewie",
                 avatarUrl: "http://jacorre.com/design/images/familyguy-stewie.gif",
-                draftText: ko.observable("")
+                draftText: ko.observable(""),
+                isWriting: ko.observable(false)
             }];
             function createTestMessage() {
                 var newDate = new Date();

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 
@@ -60,6 +61,56 @@ namespace SillyChat.Repositories
         public IEnumerable<Message> GetLastMessages(int count)
         {
             return Messages.OrderByDescending(x => x.Date).Take(count).ToList();
+        }
+
+
+        private readonly int _MaxUserCount = ConfigurationManager.AppSettings["MaxUserCount"] == null ? 20 : int.Parse(ConfigurationManager.AppSettings["MaxUserCount"]);
+
+        private Dictionary<int, User> _Participants = new Dictionary<int, User>();
+
+        private readonly object Locker = new object();
+
+        public bool TryJoin(User user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            lock (Locker)
+            {
+                if (_Participants.ContainsKey(user.Id)) // already there
+                {
+                    return true;
+                }
+
+                if (_Participants.Count >= _MaxUserCount) // too many
+                {
+                    return false;
+                }
+
+                _Participants.Add(user.Id, user);
+                return true;
+            }
+        }
+
+        public void Leave(User user)
+        {
+            lock (Locker)
+            {
+                _Participants.Remove(user.Id);
+            }
+        }
+
+        public IEnumerable<User> GetParticipants()
+        {
+            return _Participants.Values.ToList();
+        }
+
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
         }
     }
 }

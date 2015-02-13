@@ -41,3 +41,7 @@ C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\System.Web.Optimizat
 C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\obj\Debug\SillyChat.dll
 C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\obj\Debug\SillyChat.pdb
 C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\obj\Debug\SillyChat.csprojResolveAssemblyReference.cache
+C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\EntityFramework.dll
+C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\EntityFramework.SqlServer.dll
+C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\EntityFramework.xml
+C:\Users\cgfqh_000\Documents\GitHub\SillyChat\SillyChat\bin\EntityFramework.SqlServer.xml

@@ -27,6 +27,8 @@ export class ChatViewModel {
 
 export interface IParticipantViewModel extends IUser {
     draftText: KnockoutObservable<string>;
+
+    isWriting: KnockoutObservable<boolean>;
 }
 
 export interface IDraftMessageViewModel {

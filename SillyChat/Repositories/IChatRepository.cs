@@ -15,5 +15,13 @@ namespace SillyChat.Repositories
         Message AddMessage(User user, string text);
 
         IEnumerable<Message> GetLastMessages(int count);
+
+        IEnumerable<User> GetParticipants();
+
+        bool TryJoin(User user);
+
+        void Leave(User user);
+
+        void Clear();
     }
 }

@@ -11,20 +11,25 @@ namespace SillyChat.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IChatRepository _ChatRepo = new DummyChatRepository();
+        private readonly IChatRepository _ChatRepo = new ChatRepository();
 
         public ActionResult Index()
         {
-            ViewBag.Title = "Home Page";
+            ViewBag.Title = "Chat";
+
+            if (this.User.Identity.IsAuthenticated && String.IsNullOrEmpty(this.User.Identity.Name))
+            {
+                FormsAuthentication.SignOut();
+            }
 
             return View();
         }
 
-        public ActionResult Moo()
+        public ActionResult Clear()
         {
-            ViewBag.Title = "Home Page";
-
-            return View();
+            _ChatRepo.Clear();
+            FormsAuthentication.SignOut();
+            return RedirectToAction("Index");
         }
 
         [HttpPost]

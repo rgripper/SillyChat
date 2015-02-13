@@ -3,6 +3,7 @@ using SillyChat.Repositories;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -30,13 +31,13 @@ namespace SillyChat.Models
         void AddMessage(string text);
 
         void SetDraftText(string text);
+
+        void Join();
     }
 
     public class ChatHub : Hub<IChatClient>, IChatServer
     {
-        private readonly IChatRepository _ChatRepo = new DummyChatRepository();
-
-        private static readonly ChatState ChatState = new ChatState();
+        private readonly IChatRepository _ChatRepo = new ChatRepository();
 
         private User CurrentUser
         {
@@ -59,6 +60,12 @@ namespace SillyChat.Models
             Clients.Others.SetDraftText(this.CurrentUser.Id, text);
         }
 
+        [Authorize]
+        public void Join ()
+        {
+            Join(this.CurrentUser);
+        }
+
         public override Task OnDisconnected(bool stopCalled)
         {
             if (this.Context.User.Identity.IsAuthenticated)
@@ -66,29 +73,16 @@ namespace SillyChat.Models
                 var user = this.CurrentUser;
                 if (user != null) // not orphaned
                 {
-                    ChatState.Leave(user);
+                    _ChatRepo.Leave(user);
                     Clients.Others.RemoveParticipant(user.Id);
                 }
             }
             return base.OnDisconnected(stopCalled);
         }
 
-        public override Task OnConnected()
-        {
-            if (this.Context.User.Identity.IsAuthenticated)
-            {
-                var user = this.CurrentUser;
-                if (user != null)
-                {
-                    Join(user);
-                }
-            }
-            return base.OnConnected();
-        }
-
         private void Join(User user)
         {
-            if (ChatState.TryJoin(user))
+            if (_ChatRepo.TryJoin(user))
             {
                 Clients.Others.AddParticipant(user);
                 Initialize(user);
@@ -102,59 +96,9 @@ namespace SillyChat.Models
         private void Initialize(User user)
         {
             var messages = _ChatRepo.GetLastMessages(15);
-            Clients.Caller.Init(user, ChatState.Participants, messages);
-        }
-    }
-
-    public class ChatState
-    {
-        private readonly int _MaxUserCount = 20;
-
-        private Dictionary<int, User> _Participants = new Dictionary<int, User>();
-
-        private readonly object Locker = new object();
-
-        public IEnumerable<User> Participants
-        {
-            get
-            {
-                lock (Locker)
-                {
-                    return _Participants.Values.ToList();
-                }
-            }
+            Clients.Caller.Init(user, _ChatRepo.GetParticipants(), messages);
         }
 
-        public bool TryJoin(User user)
-        {
-            if (user == null)
-            {
-                throw new ArgumentNullException("user");
-            }
 
-            lock (Locker)
-            {
-                if (_Participants.ContainsKey(user.Id)) // already there
-                {
-                    return true;
-                }
-
-                if (_Participants.Count >= _MaxUserCount) // too many
-                {
-                    return false;
-                }
-
-                _Participants.Add(user.Id, user);
-                return true;
-            }
-        }
-
-        public void Leave(User user)
-        {
-            lock (Locker)
-            {
-                _Participants.Remove(user.Id);
-            }
-        }
     }
 }
