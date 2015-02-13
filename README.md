@@ -1,5 +1,6 @@
 ## Task 1: Write a simple chat application with the following requirements: 
 * The user should enter a name to login to the system. (Important: no password or registration is required).
+**(It is cookie-based, so to join as another user on the same device, anonymous window or another browser is needed)**
 * There is a button to logout after the user logs in. 
 * When the user logs in, the last 15 messages will be shown (if available). 
 * The system allows up to 20 users at a time. 
