@@ -88,7 +88,11 @@ define(["require", "exports", "knockout", "ChatViewModel"], function (require, e
                 isSigningIn: ko.observable(false),
                 userName: ko.observable(""),
                 signIn: function () {
-                    $.post(app.settings.signInPath, { name: app.controls.userName() }).done(function (x) {
+                    var userName = app.controls.userName();
+                    if (!userName.trim()) {
+                        return;
+                    }
+                    $.post(app.settings.signInPath, { name: userName }).done(function (x) {
                         if (x.success) {
                             app.controls.connectAndJoin().always(function () { return app.controls.isSigningIn(false); });
                         }

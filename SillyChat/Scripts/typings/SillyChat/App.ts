@@ -101,7 +101,11 @@ require([],() => {
             isSigningIn: ko.observable(false),
             userName: ko.observable(""),
             signIn: function () {
-                $.post(app.settings.signInPath, { name: app.controls.userName() })
+                var userName = app.controls.userName();
+                if (!userName.trim()) {
+                    return;
+                }
+                $.post(app.settings.signInPath, { name: userName })
                     .done((x: { success: boolean }) => {
                     if (x.success) {
                         app.controls.connectAndJoin().always(() => app.controls.isSigningIn(false));

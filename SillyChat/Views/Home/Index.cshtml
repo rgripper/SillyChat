@@ -37,7 +37,9 @@
         <div class="form-inline controls" data-bind="visible: !connected()">
             <span class="label label-danger">disconnected</span>
             <label class="control-label">User name:</label>
-            <input class="form-control" data-bind="pressEnter: controls.signIn(), value: controls.userName, valueUpdate: 'input'" />
+            <div data-bind="css: { 'has-error': !controls.userName() }">
+                <input class="form-control" data-bind="pressEnter: controls.signIn(), value: controls.userName, valueUpdate: 'input'" />
+            </div>
             <button type="button" class="btn btn-primary" data-bind="click: controls.signIn">Sign In</button>
         </div>
         <div class="form-inline controls" data-bind="visible: connected()">
